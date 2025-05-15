@@ -51,6 +51,11 @@ get_genre_names() {
   echo "${names[*]}" | sed 's/ /, /g'
 }
 
+if [ "$START_YEAR" -gt "$END_YEAR" ]; then
+  echo "Error: Start year ($START_YEAR) cannot be greater than end year ($END_YEAR)."
+  exit 1
+fi
+
 API_URL="https://api.themoviedb.org/3/discover/movie?api_key=$TMDB_KEY&region=$REGION&primary_release_date.gte=${START_YEAR}-01-01&primary_release_date.lte=${END_YEAR}-12-31&page=1"
 
 RESPONSE=$(curl -s "$API_URL")

@@ -1,0 +1,22 @@
+Running (expect success): Default args
+[0;32mCheck:[0m Target file exists: ./v3_get_posters.sh
+[0;32mPASS:[0m Default args
+
+[0;32mInfo:[0m Added './' prefix to target script. New target: ./v3_get_posters.sh
+=== Test run started at 2025-05-15 22:53:29 ===
+Running (expect success): Default args
+[0;32mCheck:[0m Target file exists: ./v3_get_posters.sh
+[0;32mPASS:[0m Default args
+
+Running (expect failure): Invalid option
+[0;32mCheck:[0m Target file exists: ./v3_get_posters.sh
+[0;32mPASS:[0m Invalid option (error occurred as expected)
+
+Running (expect failure): Start year > End year
+[0;32mCheck:[0m Target file exists: ./v3_get_posters.sh
+[0;32mPASS:[0m Start year > End year (error occurred as expected)
+
+=== Test run ended at 2025-05-15 22:53:39 ===
+Total tests: 3
+[0;32mPassed tests: 3[0m
+[0;31mFailed tests: 0[0m
