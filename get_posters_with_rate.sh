@@ -4,7 +4,8 @@ POSTER_BASE_DIR="posters"
 SCRIPT_DIR=$(pwd)
 mkdir -p "$SCRIPT_DIR/$POSTER_BASE_DIR"
 
-GENRE_JSON=$(curl -s "https://api.themoviedb.org/3/genre/movie/list?api_key=$TMDB_KEY&language=ja-JP")
+# 英語版ジャンル一覧を取得
+GENRE_JSON=$(curl -s "https://api.themoviedb.org/3/genre/movie/list?api_key=$TMDB_KEY&language=en-US")
 
 get_genre_names() {
   local ids=($1)
@@ -27,35 +28,41 @@ for INDEX in {0..4}; do
   GENRE_IDS=$(echo "$RESPONSE" | jq -r ".results[$INDEX].genre_ids | join(\" \")")
   GENRE_NAMES=$(get_genre_names "$GENRE_IDS")
 
-  # メインジャンルでフォルダ作成（複数ジャンルの場合は最初のジャンルを使う）
-  MAIN_GENRE=$(echo "$GENRE_NAMES" | cut -d',' -f1 | xargs) # カンマ区切りの最初のジャンル名を取得してtrim
+  # 新たに追加：評価スコアを取得
+  RATING=$(echo "$RESPONSE" | jq -r ".results[$INDEX].vote_average")
 
-  DIR_PATH="$SCRIPT_DIR/$POSTER_BASE_DIR/$MAIN_GENRE"
+  MAIN_GENRE=$(echo "$GENRE_NAMES" | cut -d',' -f1 | xargs)
+  SAFE_MAIN_GENRE=${MAIN_GENRE// /_}
+
+  DIR_PATH="$SCRIPT_DIR/$POSTER_BASE_DIR/$SAFE_MAIN_GENRE"
   mkdir -p "$DIR_PATH"
 
-  # ファイル名作成（スペースをアンダースコアに）
   SAFE_TITLE="${TITLE// /_}"
   POSTER_SAVE_PATH="$DIR_PATH/${SAFE_TITLE}.jpg"
+  POSTER_REL_PATH="${POSTER_BASE_DIR}/${SAFE_MAIN_GENRE}/${SAFE_TITLE}.jpg"
   METADATA_SAVE_PATH="$DIR_PATH/${SAFE_TITLE}.json"
   POSTER_URL="https://image.tmdb.org/t/p/w500$POSTER_PATH"
 
   wget -q -O "$POSTER_SAVE_PATH" "$POSTER_URL"
 
-  # メタデータJSONを作成
   cat > "$METADATA_SAVE_PATH" << EOF
 {
   "title": "$TITLE",
   "release_date": "$DATE",
   "overview": "$OVERVIEW",
   "genres": "$GENRE_NAMES",
-  "poster_path": "$POSTER_SAVE_PATH"
+  "rating": $RATING,
+  "poster_path": "$POSTER_REL_PATH"
 }
 EOF
 
   echo ""
   echo "🎬 Title: $TITLE"
   echo "📅 Release: $DATE"
+  echo "⭐️ Rating: $RATING / 10"
   echo "🎭 Genres: $GENRE_NAMES"
+  echo "📝 Overview:"
+  echo "$OVERVIEW"
   echo "🖼️  Poster saved to: $POSTER_SAVE_PATH"
   echo "🗂️  Metadata saved to: $METADATA_SAVE_PATH"
 done
